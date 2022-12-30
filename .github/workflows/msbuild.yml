@@ -24,6 +24,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        submodules: 'true'
 
     - name: Download Server
       working-directory: ${{ env.GITHUB_WORKSPACE }}
@@ -38,10 +40,7 @@ jobs:
       working-directory: ${{ env.GITHUB_WORKSPACE }}
       run: |
         cd SDK/tools
-        LibraryBuilder.exe server
-        mkdir ../lib
-        mv bedrock_server_api.lib ../lib
-        mv bedrock_server_var.lib ../lib
+        LibraryBuilder.exe -o ../lib server
       shell: bash
 
     - name: Add MSBuild to PATH
@@ -58,6 +57,6 @@ jobs:
       run: msbuild /m /p:Configuration=${{env.BUILD_CONFIGURATION}} ${{env.SOLUTION_FILE_PATH}}
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3.1.1
       with:
         path: ${{env.GITHUB_WORKSPACE}}\build\Release
