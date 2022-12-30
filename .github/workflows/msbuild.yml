@@ -59,4 +59,4 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v3.1.1
       with:
-        path: ${{env.GITHUB_WORKSPACE}}\build\Release
+        path: ${{github.workspace}}/build/Release
