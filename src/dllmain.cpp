@@ -1,68 +1,37 @@
-/**
- * @file DLLMain.cpp
- * @note DO NOT modify or remove this file!
- */
-
-#include <llapi/LoggerAPI.h>
-#include <llapi/ServerAPI.h>
-
-#include "version.h"
-
 #pragma comment(lib, "../SDK/lib/bedrock_server_api.lib")
 #pragma comment(lib, "../SDK/lib/bedrock_server_var.lib")
 #pragma comment(lib, "../SDK/lib/SymDBHelper.lib")
 #pragma comment(lib, "../SDK/lib/LiteLoader.lib")
 
-void PluginInit();
+#include <llapi/HookAPI.h>
+#include <llapi/mc/ServerNetworkHandler.hpp>
+#include <llapi/mc/Types.hpp>
 
-Logger logger(PLUGIN_NAME);
-
-void CheckProtocolVersion()
+TInstanceHook(__int64, "?setMaxNumPlayers@ServerNetworkHandler@@QEAAHH@Z", ServerNetworkHandler, int a2)
 {
-
-#ifdef TARGET_BDS_PROTOCOL_VERSION
-
-    auto current_protocol = ll::getServerProtocolVersion();
-    if (TARGET_BDS_PROTOCOL_VERSION != current_protocol)
+    int ActiveAndInProgressPlayerCount = getActiveAndInProgressPlayerCount(mce::UUID::EMPTY);
+    unsigned int v5 = 0;
+    if (a2 <= INT_MAX)
     {
-        logger.warn("Protocol version mismatched! Target version: {}. Current version: {}.",
-                    TARGET_BDS_PROTOCOL_VERSION, current_protocol);
-        logger.warn("This may result in crash. Please switch to the version matching the BDS version!");
+        if (a2 < ActiveAndInProgressPlayerCount)
+        {
+            a2 = ActiveAndInProgressPlayerCount;
+            v5 = -1;
+        }
     }
-
-#endif // TARGET_BDS_PROTOCOL_VERSION
-}
-
-BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD ul_reason_for_call,
-                      LPVOID lpReserved)
-{
-    switch (ul_reason_for_call)
+    else
     {
-    case DLL_PROCESS_ATTACH:
-        ll::registerPlugin(
-            PLUGIN_NAME,
-            PLUGIN_INTRODUCTION,
-            ll::Version(PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION, PLUGIN_LLVERSION_STATUS),
-            std::map<std::string, std::string>{
-                {"Author", PLUGIN_AUTHOR},
-            });
-        break;
-
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
+        a2 = INT_MAX;
+        v5 = 1;
     }
-    return TRUE;
-}
-
-extern "C"
-{
-    _declspec(dllexport) void onPostInit()
+    int v6 = *((unsigned long*)this + 192);
+    *((unsigned long*)this + 192) = a2;
+    if (v6 != a2)
     {
-        std::ios::sync_with_stdio(false);
-        CheckProtocolVersion();
-        PluginInit();
+        updateServerAnnouncement();
+        (*(void(__fastcall**)(unsigned long long, unsigned long long))(**((unsigned long long**)this + 56) + 40i64))(
+            *((unsigned long long*)this + 56),
+            *((unsigned int*)this + 192));
     }
+    return v5;
 }
