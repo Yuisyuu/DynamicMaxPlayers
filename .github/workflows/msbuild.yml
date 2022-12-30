@@ -40,7 +40,7 @@ jobs:
       working-directory: ${{ env.GITHUB_WORKSPACE }}
       run: |
         cd SDK/tools
-        LibraryBuilder.exe -o ../lib server
+        ./LibraryBuilder.exe -o ../lib server
       shell: bash
 
     - name: Add MSBuild to PATH
