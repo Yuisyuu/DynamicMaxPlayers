@@ -3,19 +3,10 @@
  * @brief The main file of the plugin
  */
 
-#include <llapi/LoggerAPI.h>
-
- // We recommend using the global logger.
-extern Logger logger;
-
 #include "llapi/EventAPI.h"
 #include "llapi/GlobalServiceAPI.h"
 #include "llapi/mc/ServerNetworkHandler.hpp"
-
-void setMaxNumPlayers(int plus = 0)
-{
-    Global<ServerNetworkHandler>->setMaxNumPlayers(Global<ServerNetworkHandler>->getActiveAndInProgressPlayerCount(mce::UUID::EMPTY) + plus);
-}
+#include "llapi/mc/Types.hpp"
 
 /**
  * @brief The entrypoint of the plugin. DO NOT remove or rename this function.
@@ -25,20 +16,22 @@ void PluginInit()
 {
     Event::ServerStartedEvent::subscribe([](Event::ServerStartedEvent ev)
     {
-        setMaxNumPlayers(1);
+        Global<ServerNetworkHandler>->setMaxNumPlayers(Global<ServerNetworkHandler>->getActiveAndInProgressPlayerCount(mce::UUID::EMPTY) + 1);
         return true;
     });
     Event::PlayerPreJoinEvent::subscribe([](Event::PlayerPreJoinEvent ev)
     {
-        setMaxNumPlayers(1);
+        Global<ServerNetworkHandler>->setMaxNumPlayers(Global<ServerNetworkHandler>->getActiveAndInProgressPlayerCount(mce::UUID::EMPTY) + 1);
         return true;
     });
     Event::PlayerLeftEvent::subscribe([](Event::PlayerLeftEvent ev)
     {
-        setMaxNumPlayers();
+        Global<ServerNetworkHandler>->setMaxNumPlayers(Global<ServerNetworkHandler>->getActiveAndInProgressPlayerCount(mce::UUID::EMPTY) + 1);
         return true;
     });
 }
+
+#include "llapi/HookAPI.h"
 
 TInstanceHook(int, "?setMaxNumPlayers@ServerNetworkHandler@@QEAAHH@Z", ServerNetworkHandler, int a2)
 {

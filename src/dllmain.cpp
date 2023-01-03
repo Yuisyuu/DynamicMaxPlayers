@@ -3,8 +3,7 @@
  * @note DO NOT modify or remove this file!
  */
 
-#include <llapi/LoggerAPI.h>
-#include <llapi/ServerAPI.h>
+#include <llapi/LLAPI.h>
 
 #include "version.hpp"
 
@@ -14,8 +13,6 @@
 #pragma comment(lib, "../SDK/lib/LiteLoader.lib")
 
 void PluginInit();
-
-Logger logger(PLUGIN_NAME);
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
