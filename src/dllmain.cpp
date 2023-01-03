@@ -1,37 +1,40 @@
+/**
+ * @file DLLMain.cpp
+ * @note DO NOT modify or remove this file!
+ */
+
+#include <llapi/LoggerAPI.h>
+#include <llapi/ServerAPI.h>
+
+#include "version.hpp"
+
 #pragma comment(lib, "../SDK/lib/bedrock_server_api.lib")
 #pragma comment(lib, "../SDK/lib/bedrock_server_var.lib")
 #pragma comment(lib, "../SDK/lib/SymDBHelper.lib")
 #pragma comment(lib, "../SDK/lib/LiteLoader.lib")
 
-#include <llapi/HookAPI.h>
-#include <llapi/mc/ServerNetworkHandler.hpp>
-#include <llapi/mc/Types.hpp>
+void PluginInit();
 
-TInstanceHook(__int64, "?setMaxNumPlayers@ServerNetworkHandler@@QEAAHH@Z", ServerNetworkHandler, int a2)
+Logger logger(PLUGIN_NAME);
+
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
-    int ActiveAndInProgressPlayerCount = getActiveAndInProgressPlayerCount(mce::UUID::EMPTY);
-    unsigned int v5 = 0;
-    if (a2 <= INT_MAX)
+    if (ul_reason_for_call != DLL_PROCESS_ATTACH)
+        return false;
+    ll::registerPlugin(
+        PLUGIN_NAME,
+        PLUGIN_INTRODUCTION,
+        ll::Version(PLUGIN_VERSION_MAJOR, PLUGIN_VERSION_MINOR, PLUGIN_VERSION_REVISION, PLUGIN_LLVERSION_STATUS),
+        std::map<std::string, std::string>{
+            {"Author", PLUGIN_AUTHOR},
+    });
+    return true;
+}
+
+extern "C"
+{
+    _declspec(dllexport) void onPostInit()
     {
-        if (a2 < ActiveAndInProgressPlayerCount)
-        {
-            a2 = ActiveAndInProgressPlayerCount;
-            v5 = -1;
-        }
+        PluginInit();
     }
-    else
-    {
-        a2 = INT_MAX;
-        v5 = 1;
-    }
-    int v6 = *((unsigned long*)this + 192);
-    *((unsigned long*)this + 192) = a2;
-    if (v6 != a2)
-    {
-        updateServerAnnouncement();
-        (*(void(__fastcall**)(unsigned long long, unsigned long long))(**((unsigned long long**)this + 56) + 40i64))(
-            *((unsigned long long*)this + 56),
-            *((unsigned int*)this + 192));
-    }
-    return v5;
 }

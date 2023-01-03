@@ -38,4 +38,5 @@ out
 
 # Jetbrains IDEs
 .idea
+# Visual Studio
 .vs
